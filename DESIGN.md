@@ -133,3 +133,4 @@ Expected size: roughly 80 lines of source.
 | 8   | Keep the error handler as a typed `const badJson: ErrorRequestHandler` rather than inlining it; the annotation types its four parameters                                        | Confirmed 2026-11-22 |
 | 9   | Initialized a local git repo (branch `main`) and made the first commit (`38d5d07`) after step 6; no remote                                                                      | Done 2026-11-22      |
 | 10  | Show the server first with a curl script (`demo.sh`); keep the Supertest tests (with `await`) as the automated versions, and explain `await` in a comment in `test/app.test.ts` | Confirmed 2026-11-22 |
+| 11  | Add `.gitattributes` (`*.sh text eol=lf`) so `demo.sh` keeps LF line endings on Windows checkouts                                                                               | Confirmed 2026-11-22 |
