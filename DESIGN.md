@@ -94,7 +94,7 @@ Expected size: roughly 80 lines of source.
 1. **Scaffold**: `npm init`; install `express`, `zod`; dev: `typescript`,
    `tsx`, `vitest`, `supertest`, `@types/express`, `@types/supertest`,
    `@types/node`, `@stryker-mutator/core`, `@stryker-mutator/vitest-runner`.
-   Add `tsconfig.json` (strict) and scripts: `dev`, `test`, `mutate`.
+   Add `tsconfig.json` (strict) and scripts: `dev`, `test`, `mutations`.
 2. **Counter** (test first): first call returns 1, then 2, 3; two counters are
    independent.
 3. **Auth** (test first): correct pair accepted; wrong password, unknown user,
@@ -134,3 +134,4 @@ Expected size: roughly 80 lines of source.
 | 9   | Initialized a local git repo (branch `main`) and made the first commit (`38d5d07`) after step 6; no remote                                                                      | Done 2026-11-22      |
 | 10  | Show the server first with a curl script (`demo.sh`); keep the Supertest tests (with `await`) as the automated versions, and explain `await` in a comment in `test/app.test.ts` | Confirmed 2026-11-22 |
 | 11  | Add `.gitattributes` (`*.sh text eol=lf`) so `demo.sh` keeps LF line endings on Windows checkouts                                                                               | Confirmed 2026-11-22 |
+| 12  | Rename the npm script `mutate` to `mutations` (Stryker's own `mutate` config key is unchanged)                                                                                  | Confirmed 2026-11-23 |

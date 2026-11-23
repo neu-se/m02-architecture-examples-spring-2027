@@ -13,7 +13,7 @@
     "build": "echo 'nothing to do to build, run `npm start`'",
     "start": "tsx src/server.ts",
     "typecheck": "tsc --noEmit",
-    "mutate": "stryker run"
+    "mutations": "stryker run"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",
