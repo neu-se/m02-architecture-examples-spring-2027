@@ -6,6 +6,11 @@ import { createApp } from "../src/controller.ts";
 import { createCounter } from "../src/counter.ts";
 
 // End-to-end: the real Controller, Auth, and Counter wired together.
+//
+// These tests make the same requests as demo.sh (curl), but automatically.
+// Supertest starts the app on a temporary port and sends real HTTP requests.
+// The reply arrives later, so each call returns a Promise, and `await` waits
+// for the reply before we look at it.
 describe("Counter server (all modules together)", () => {
   const credentials = { user: "alice", password: "secret" };
 
