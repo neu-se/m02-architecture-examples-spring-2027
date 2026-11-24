@@ -1,0 +1,51 @@
+{
+  "name": "enrollment-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "check": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "test": "vitest run",
+    "dev": "tsx watch src/server.ts",
+    "build": "echo 'nothing to do to build, run `npm start`'",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "mutations": "stryker run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/vitest-runner": "^10.1.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.19.2",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^10.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import-x": "^4.16.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "prettier": "^3.7.4",
+    "supertest": "^7.3.2",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.60.1",
+    "vitest": "^4.1.12"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "keyv": "^5.6.0",
+    "zod": "^4.6.7"
+  },
+  "description": "Recreation-center enrollment example for CS 4530 (Extension #1)",
+  "main": "src/server.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

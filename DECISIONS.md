@@ -315,3 +315,18 @@ and the gaps), confirmed 2026-11-24.
   folder with a `package.json`" needs no explanation. Cost: tooling files
   (such as the ESLint config) are copied into each folder, so a rule change is
   made twice.
+
+### 35. The enrollment app starts as a minimal skeleton (2026-11-24)
+
+- **Decision:** `enrollment-server/` begins with the counter's tooling files
+  copied unchanged (package.json renamed, `keyv` kept) and a Controller whose
+  `createApp()` takes no arguments and only sets up `express.json()` and the
+  malformed-JSON error reply. A small `server.ts` starts it. Auth, Service and
+  Repository parameters are added to `createApp` as those modules are written.
+  The one test checks the 400 reply for malformed JSON.
+- **Alternatives:** Declare empty `Auth`, `Service` and `Repository`
+  interfaces up front; copy the counter's Controller and then delete the
+  counter parts.
+- **Why:** YAGNI. Interfaces declared before anything uses them would be
+  guesses that later steps might change, and this way every line has a test.
+  Cost: `createApp`'s signature changes in later steps.
