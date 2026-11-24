@@ -139,3 +139,4 @@ Expected size: roughly 80 lines of source.
 | 14  | The single authorized user is `alice` / `secret`                                                                                                                                | Confirmed 2026-11-23 |
 | 15  | Error replies are `{ "error": "Invalid request" }` (400) and `{ "error": "Unauthorized" }` (401)                                                                                | Confirmed 2026-11-23 |
 | 16  | Empty `user` or `password` is a malformed request (400), not an unauthorized one (401)                                                                                          | Confirmed 2026-11-23 |
+| 17  | Publish to GitHub as a public repo, `neu-se/m02-architecture-examples-spring-2027` (remote `origin`, branch `main`)                                                             | Done 2026-11-24      |
