@@ -374,3 +374,38 @@ and the gaps), confirmed 2026-11-24.
   belongs with the other rules. **Open:** who produces the hash for the
   Controller to pass in (for example a method on Auth) is decided in step 4,
   and Auth will need to read the same `ADMIN_NAME`.
+
+### 39. File-backed store: `keyv-file`, writing JSON (2026-11-24)
+
+- **Decision:** The persistent repository uses Keyv with the `keyv-file`
+  adapter, configured to write JSON (`serialize` and `deserialize` set to
+  JSON) with `writeDelay: 0`. This settles the open adapter choice in
+  decision 19.
+- **Alternatives:** `@keyv/sqlite`; Keyv's default in-memory store only; a
+  hand-written file adapter.
+- **Why:** Checked on npm and by experiment on 2026-11-24. `@keyv/sqlite`
+  6.1.0 needs Keyv 6 (we use 5.x) and the native `better-sqlite3` module,
+  which means a major upgrade and possible Windows build trouble. `keyv-file`
+  5.3.5 is pure JavaScript and targets Keyv 5. Its default format is binary
+  (msgpack), so we switch it to JSON, which students can open and read. By
+  default it waits 100 ms before each write; with `writeDelay: 0`, an awaited
+  `set()` returns only once the data is on disk. A test in a second process
+  confirmed data written just before an immediate exit was readable afterward.
+  Cost: a community adapter rather than one maintained by the Keyv project.
+
+### 40. Two factories, and contract tests that also check the fake (2026-11-24)
+
+- **Decision:** `repository.ts` exports `createMemoryRepository()` and
+  `createFileRepository(file)`, both built on one private helper over Keyv.
+  Keyv appears nowhere outside this module. One set of contract tests runs
+  against the fake used in Service tests, the in-memory repository and the
+  file-backed repository, plus tests that data survives opening a new
+  repository on the same file.
+- **Alternatives:** One `createRepository(file?)` that picks memory or file;
+  accept a Keyv instance as a parameter.
+- **Why:** A single function with an optional path had a mutant Stryker could
+  not kill (replacing the file check with `false`): without a filename the
+  file adapter acts like memory, so the two modes were not distinguishable.
+  Two functions have no such branch and read more simply. Passing a Keyv
+  instance would leak Keyv to callers. Running the contract against the fake
+  checks that the test double behaves like the real repository.
