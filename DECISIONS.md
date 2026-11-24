@@ -330,3 +330,47 @@ and the gaps), confirmed 2026-11-24.
 - **Why:** YAGNI. Interfaces declared before anything uses them would be
   guesses that later steps might change, and this way every line has a test.
   Cost: `createApp`'s signature changes in later steps.
+
+### 36. The Service reports results, with a fixed order of checks (2026-11-24)
+
+- **Decision:** Each Service method returns `{ ok: true }` or
+  `{ ok: false, reason }`, where `reason` is a string from a short list per
+  method, and never throws for a rule violation. Sign-up checks, in order: no
+  such student, no such activity, already enrolled, previously dropped, limit
+  of 3. Drop checks: no such student, no such activity, not enrolled.
+- **Alternatives:** Throw typed errors; return `boolean`; check the limit
+  before the "previously dropped" rule.
+- **Why:** Results are easy to read and to test, and TypeScript makes the
+  Controller handle every reason. "Previously dropped" is checked before the
+  limit so a student at the limit who retries a dropped activity is told the
+  real, permanent reason, not a temporary one. `no-such-student` is included
+  because the type system requires handling a missing student, even though an
+  authenticated student always exists.
+
+### 37. The Repository interface is defined with the Service (2026-11-24)
+
+- **Decision:** `src/repository.ts` holds the `Repository` interface and the
+  `Student` and `Activity` types, written in step 2 because the Service needs
+  them. A student's `enrollments` is
+  `Partial<Record<string, "active" | "dropped">>`. Tests use a fake repository
+  in `test/fakeRepository.ts` that copies records in and out. The Keyv
+  implementation and shared contract tests come in step 3.
+- **Alternatives:** Define the interface in step 3 and let the Service test
+  use Keyv's memory store directly.
+- **Why:** The Service cannot be written without it, and a fake keeps the
+  Service tests about rules only. The `Partial` type is honest: an activity
+  the student never joined has no entry, and a plain `Record` made the
+  compiler treat the "dropped" check as always true.
+
+### 38. The Service receives an already-hashed password, and owns the reserved name (2026-11-24)
+
+- **Decision:** `createStudent(name, passwordHash)` stores the hash it is
+  given; it does not hash. The reserved name `admin` is a constant and rule in
+  `service.ts`, reported as the reason `reserved`.
+- **Alternatives:** Pass the plain password and hash it inside the Service;
+  keep the reserved-name check in the Controller.
+- **Why:** Hashing is hidden behind Auth (decision 25), so the Service stays
+  free of it. A reserved name is a rule about which students may exist, so it
+  belongs with the other rules. **Open:** who produces the hash for the
+  Controller to pass in (for example a method on Auth) is decided in step 4,
+  and Auth will need to read the same `ADMIN_NAME`.
