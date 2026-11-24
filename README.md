@@ -1,79 +1,24 @@
-# Tiny Counter Server
+# M02 Architecture Examples
 
-A very small web server for CS 4530. A `POST /count` request from an
-authorized user returns how many authorized calls the server has handled.
+Small Express and TypeScript servers for CS 4530, Module 2. Each folder is a
+complete, independent project with its own `package.json`. Open the folder you
+want, and run every `npm` command inside it.
 
-## Modules
+| Folder                                   | What it is                                                                                                           |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| [counter-server/](counter-server/)       | Version 1. A tiny server with three modules: Controller, Auth and Counter.                                           |
+| [enrollment-server/](enrollment-server/) | Extension #1. A recreation-center enrollment app with a Service and a Repository. In progress: so far only its plan. |
 
-```
-  HTTP request
-       |
-       v
-  +------------+  isAuthorized(credentials)   +------+
-  | Controller | ---------------------------> | Auth |
-  |            |  <--- true / false --------- +------+
-  |            |
-  |            |  increment()                 +---------+
-  |            | ---------------------------> | Counter |
-  |            |  <--- total so far --------- +---------+
-  +------------+
-       |
-       v
-  HTTP response
-```
-
-| Module     | File                                   | What it hides                          |
-| ---------- | -------------------------------------- | -------------------------------------- |
-| Controller | [src/controller.ts](src/controller.ts) | Express and Zod; HTTP status codes     |
-| Auth       | [src/auth.ts](src/auth.ts)             | How credentials are stored and checked |
-| Counter    | [src/counter.ts](src/counter.ts)       | Where the count lives                  |
-
-The Controller knows Auth and Counter only through their interfaces.
-[src/server.ts](src/server.ts) creates the modules and passes them to the
-Controller.
-
-## The API
-
-`POST /count` with a JSON body containing the credentials:
-
-```json
-{ "user": "alice", "password": "secret" }
-```
-
-| Situation                                                     | Status | Body                             |
-| ------------------------------------------------------------- | ------ | -------------------------------- |
-| Authorized                                                    | 200    | `{ "count": 3 }`                 |
-| Wrong credentials                                             | 401    | `{ "error": "Unauthorized" }`    |
-| Bad body (not JSON, or `user` or `password` missing or empty) | 400    | `{ "error": "Invalid request" }` |
-
-Only authorized calls are counted.
-
-## Try it
+To try the counter server:
 
 ```
+cd counter-server
 npm install
-npm start          # in one terminal
-./demo.sh          # in another: sends six requests with curl
+npm start
 ```
 
-[demo.sh](demo.sh) shows each request and the reply, including the 401 and 400
-cases.
+The git tag `v1-counter` marks the counter server as it was before the
+extension was started.
 
-## Test it
-
-```
-npm test           # unit tests per module, plus an end-to-end test
-npm run mutations  # Stryker mutation testing
-```
-
-The tests are in [test/](test/). The Controller tests use stub Auth and
-Counter objects, so they test the Controller alone.
-
-## Other scripts
-
-`npm run typecheck`, `npm run lint`, `npm run prettier`.
-
-## Design notes
-
-[DESIGN.md](DESIGN.md) has the design, the workplan, and a log of each design
-decision.
+[DECISIONS.md](DECISIONS.md) records every design decision made while building
+these, with the alternatives considered and the reasons.

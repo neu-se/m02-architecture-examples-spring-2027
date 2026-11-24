@@ -121,22 +121,5 @@ Expected size: roughly 80 lines of source.
 
 ## 3. Decision log
 
-| #   | Decision                                                                                                                                                                        | Status               |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| 1   | Credentials go in the JSON body, not an `Authorization` header                                                                                                                  | Confirmed 2026-11-21 |
-| 2   | Route and method: `POST /count`                                                                                                                                                 | Confirmed 2026-11-21 |
-| 3   | Failed auth attempts don't increment the counter                                                                                                                                | Confirmed 2026-11-21 |
-| 4   | Keep the existing ESLint and Prettier setup                                                                                                                                     | Confirmed 2026-11-21 |
-| 5   | Keep `keyv` as a dependency; it is needed for the next increment (not used in this one)                                                                                         | Confirmed 2026-11-21 |
-| 6   | Use factory functions with injected dependencies (`createApp(auth, counter)`) instead of module-level globals                                                                   | Confirmed 2026-11-21 |
-| 7   | Imports name the real file (`from "../src/auth.ts"`), enabled by `allowImportingTsExtensions` in tsconfig                                                                       | Confirmed 2026-11-21 |
-| 8   | Keep the error handler as a typed `const badJson: ErrorRequestHandler` rather than inlining it; the annotation types its four parameters                                        | Confirmed 2026-11-22 |
-| 9   | Initialized a local git repo (branch `main`) and made the first commit (`38d5d07`) after step 6; no remote                                                                      | Done 2026-11-22      |
-| 10  | Show the server first with a curl script (`demo.sh`); keep the Supertest tests (with `await`) as the automated versions, and explain `await` in a comment in `test/app.test.ts` | Confirmed 2026-11-22 |
-| 11  | Add `.gitattributes` (`*.sh text eol=lf`) so `demo.sh` keeps LF line endings on Windows checkouts                                                                               | Confirmed 2026-11-22 |
-| 12  | Rename the npm script `mutate` to `mutations` (Stryker's own `mutate` config key is unchanged)                                                                                  | Confirmed 2026-11-23 |
-| 13  | Rename `vitest.config.ts` to `vitest.config.mjs` so the project ESLint rules allow its dev-dependency import; add a README                                                      | Confirmed 2026-11-23 |
-| 14  | The single authorized user is `alice` / `secret`                                                                                                                                | Confirmed 2026-11-23 |
-| 15  | Error replies are `{ "error": "Invalid request" }` (400) and `{ "error": "Unauthorized" }` (401)                                                                                | Confirmed 2026-11-23 |
-| 16  | Empty `user` or `password` is a malformed request (400), not an unauthorized one (401)                                                                                          | Confirmed 2026-11-23 |
-| 17  | Publish to GitHub as a public repo, `neu-se/m02-architecture-examples-spring-2027` (remote `origin`, branch `main`)                                                             | Done 2026-11-24      |
+The decisions, with the alternatives considered and the reasons, are in
+[DECISIONS.md](../DECISIONS.md).
