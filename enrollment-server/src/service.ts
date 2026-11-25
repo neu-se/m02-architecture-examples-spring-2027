@@ -3,9 +3,9 @@
 //   2. A student who drops an activity may never sign up for it again.
 // It reports each outcome as a result, and the Controller turns that into HTTP.
 
+import { ADMIN_NAME } from "./admin.ts";
 import type { Repository } from "./repository.ts";
 
-export const ADMIN_NAME = "admin"; // reserved: no student may use it
 const MAX_ACTIVE = 3;
 
 export type Result<Reason extends string> = { ok: true } | { ok: false; reason: Reason };

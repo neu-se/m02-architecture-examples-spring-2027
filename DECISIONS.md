@@ -371,9 +371,9 @@ and the gaps), confirmed 2026-11-24.
   keep the reserved-name check in the Controller.
 - **Why:** Hashing is hidden behind Auth (decision 25), so the Service stays
   free of it. A reserved name is a rule about which students may exist, so it
-  belongs with the other rules. **Open:** who produces the hash for the
-  Controller to pass in (for example a method on Auth) is decided in step 4,
-  and Auth will need to read the same `ADMIN_NAME`.
+  belongs with the other rules. **Resolved by decision 41:**
+  `Auth.hashPassword()` produces the hash, and the shared admin name lives in
+  `src/admin.ts`.
 
 ### 39. File-backed store: `keyv-file`, writing JSON (2026-11-24)
 
@@ -409,3 +409,51 @@ and the gaps), confirmed 2026-11-24.
   Two functions have no such branch and read more simply. Passing a Keyv
   instance would leak Keyv to callers. Running the contract against the fake
   checks that the test double behaves like the real repository.
+
+### 41. Auth has `hashPassword()` as well as `authenticate()` (2026-11-24; owner chose)
+
+- **Decision:** `Auth` has two methods: `authenticate(credentials)`, which
+  resolves to `{ name, isAdmin }` or `undefined`, and
+  `hashPassword(password)`, which the Controller calls before passing the hash
+  to `service.createStudent`. `createAuth(repository, adminPassword)` takes
+  the repository (to look students up) and the admin password.
+- **Alternatives:** A separate passwords module with `hash` and `verify`; the
+  Service hashes.
+- **Why:** All password handling stays hidden inside Auth (decision 25) and
+  the Service stays free of it (decision 38). A separate module would add a
+  fourth module for students to learn. Cost: the Controller coordinates two
+  modules when creating a student.
+
+### 42. How Auth checks passwords (2026-11-24)
+
+- **Decision:** Each password is hashed with Node's `crypto.scrypt`, a random
+  16-byte salt and a 64-byte key, stored as `salt:key` in hex, and checked
+  with `timingSafeEqual`. The admin password is hashed once when Auth is
+  created and checked the same way. For the login name `admin`, only that
+  password counts; a stored student record named `admin` is ignored. The name
+  is a constant in `src/admin.ts`, imported by both Auth and the Service.
+  `promisify(scrypt)` is given an explicit type.
+- **Alternatives:** Compare the admin password as plain text; keep the
+  `ADMIN_NAME` constant in the Service or Auth; wrap the scrypt callback in a
+  hand-written Promise.
+- **Why:** One check path for everyone keeps Auth small, and a test covers the
+  stored-`admin` case. A shared one-line file avoids Auth and Service
+  importing each other. The hand-written Promise wrapper had an error branch
+  no test can reach (a mutant survived), while the typed `promisify` has no
+  branch. Known limit: an unknown user is rejected faster than a wrong
+  password, which could reveal which names exist; not worth fixing in a
+  teaching example.
+
+### 43. In a module file, the public part comes first and private helpers last (2026-11-25)
+
+- **Decision:** Each module file starts with its header comment, imports and
+  public types, then the exported function (such as `createAuth`), and puts
+  private helper functions and constants at the end, under a divider comment.
+  First applied to `src/auth.ts`.
+- **Alternatives:** Helpers first, as I originally wrote it (the order that
+  suits languages that must define before use).
+- **Why:** Someone reading the file to learn what the module does should meet
+  the interface and the main function first, and see the hashing details only
+  if they scroll on. `createAuth` then fits on one slide by itself. This works
+  in TypeScript because the helpers are used only when the functions run, not
+  while the file loads, and lint and typecheck accept it.
