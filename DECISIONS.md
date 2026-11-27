@@ -509,3 +509,21 @@ request` (malformed), `401 Unauthorized`, `403 Forbidden` (not admin),
   memory repository meanwhile.
 - **Why:** Every commit should typecheck. A temporary wiring would be thrown
   away.
+
+### 47. The demo script, and keeping the data file out of the checks (2026-11-27)
+
+- **Decision:** `enrollment-server/demo.sh` tells the whole story with curl
+  and shows every failure. It runs against an empty data file (the README says
+  to delete `enrollment-data.json` first). Persistence is shown in a second
+  run, `./demo.sh restart`, after the student stops and restarts the server.
+  `enrollment-data.json` is listed in the root `.gitignore` and in a new
+  `enrollment-server/.prettierignore`.
+- **Alternatives:** Let the script start and stop the server itself; use a
+  fresh data file for every run (a `mktemp` path); leave the data file
+  unignored.
+- **Why:** Students should see the server start and stop with their own eyes,
+  as in decision 10, so the restart is a manual step. A script that starts
+  servers hides the very thing being shown. Reusing the default file keeps the
+  commands short. Prettier does not read the `.gitignore` of a parent folder,
+  so without its own ignore file a student who ran the demo and then
+  `npm run prettier` would see a warning about the data file.

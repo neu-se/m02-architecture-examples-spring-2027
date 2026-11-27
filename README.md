@@ -4,15 +4,15 @@ Small Express and TypeScript servers for CS 4530, Module 2. Each folder is a
 complete, independent project with its own `package.json`. Open the folder you
 want, and run every `npm` command inside it.
 
-| Folder                                   | What it is                                                                                                                       |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| [counter-server/](counter-server/)       | Version 1. A tiny server with three modules: Controller, Auth and Counter.                                                       |
-| [enrollment-server/](enrollment-server/) | Extension #1. A recreation-center enrollment app with a Service and a Repository. In progress: project scaffold and plan so far. |
+| Folder                                   | What it is                                                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [counter-server/](counter-server/)       | Version 1. A tiny server with three modules: Controller, Auth and Counter.                                    |
+| [enrollment-server/](enrollment-server/) | Extension #1. A recreation-center enrollment app with four modules: Controller, Auth, Service and Repository. |
 
-To try the counter server:
+To try either server (the enrollment server has a README with its own demo):
 
 ```
-cd counter-server
+cd counter-server      # or enrollment-server
 npm install
 npm start
 ```
