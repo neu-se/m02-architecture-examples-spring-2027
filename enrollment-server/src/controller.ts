@@ -12,23 +12,6 @@ import type { Result, Service } from "./service.ts";
 const Credentials = z.object({ user: z.string().min(1), password: z.string().min(1) });
 const NewActivity = Credentials.extend({ name: z.string().min(1) });
 
-// What each reason the Service can give means over HTTP.
-const STATUS: Record<string, number> = {
-  reserved: 400,
-  "no-such-student": 404,
-  "no-such-activity": 404,
-  duplicate: 409,
-  "already-enrolled": 409,
-  "previously-dropped": 409,
-  limit: 409,
-  "not-enrolled": 409,
-};
-
-function reply(res: Response, success: number, result: Result<string>) {
-  if (result.ok) res.status(success).json({ ok: true });
-  else res.status(STATUS[result.reason]).json({ error: result.reason });
-}
-
 export function createApp(auth: Auth, service: Service): Express {
   const app = express();
   app.use(express.json());
@@ -82,4 +65,23 @@ export function createApp(auth: Auth, service: Service): Express {
   app.use(badRequest);
 
   return app;
+}
+
+// ---- Private helpers: turning a Service result into a reply ---------------
+
+// What each reason the Service can give means over HTTP.
+const STATUS: Record<string, number> = {
+  reserved: 400,
+  "no-such-student": 404,
+  "no-such-activity": 404,
+  duplicate: 409,
+  "already-enrolled": 409,
+  "previously-dropped": 409,
+  limit: 409,
+  "not-enrolled": 409,
+};
+
+function reply(res: Response, success: number, result: Result<string>) {
+  if (result.ok) res.status(success).json({ ok: true });
+  else res.status(STATUS[result.reason]).json({ error: result.reason });
 }

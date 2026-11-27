@@ -1,11 +1,13 @@
 # Extension #1: Recreation Center Enrollment — Critique and Workplan
 
-Status: **step 0 done (2026-11-24).** Every proposed resolution in this
-document (A1 to A12 and the gaps) was confirmed as written. They are recorded,
-with alternatives and reasons, as decisions 18 to 32 in
+Status: **steps 0 to 9 done (2026-11-27); only the final commit and push of
+the review step remain.** Every proposed resolution in this document (A1 to
+A12 and the gaps) was confirmed as written. They are recorded, with
+alternatives and reasons, as decisions 18 to 32 in
 [DECISIONS.md](../DECISIONS.md). The repository layout was revised the same
-day (decisions 33 and 34): this app is separate from `counter-server/`. Next:
-step 1, the scaffold.
+day (decisions 33 and 34): this app is separate from `counter-server/`. The
+mutation score is 100% and `counter-server/` is unchanged. A Supabase version
+is planned separately, on a branch, in [SUPABASE-PLAN.md](SUPABASE-PLAN.md).
 
 ## 1. Critique of the Extension #1 description in CLAUDE.md
 

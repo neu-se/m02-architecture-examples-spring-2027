@@ -449,7 +449,8 @@ and the gaps), confirmed 2026-11-24.
 - **Decision:** Each module file starts with its header comment, imports and
   public types, then the exported function (such as `createAuth`), and puts
   private helper functions and constants at the end, under a divider comment.
-  First applied to `src/auth.ts`.
+  First applied to `src/auth.ts`, and later to `src/controller.ts`, where
+  the reason-to-status table and `reply` now follow `createApp`.
 - **Alternatives:** Helpers first, as I originally wrote it (the order that
   suits languages that must define before use).
 - **Why:** Someone reading the file to learn what the module does should meet
@@ -527,3 +528,42 @@ request` (malformed), `401 Unauthorized`, `403 Forbidden` (not admin),
   commands short. Prettier does not read the `.gitignore` of a parent folder,
   so without its own ignore file a student who ran the demo and then
   `npm run prettier` would see a warning about the data file.
+
+### 48. Supabase version lives on a branch, `with-supabase` (2026-11-27)
+
+- **Decision:** The Supabase version of the enrollment server will be built on
+  a git branch named `with-supabase`, created from the finished Keyv-based
+  `main`. `main` stays Keyv-only and is never touched by it. Nothing of the
+  Supabase plan has been built yet; the other questions in
+  `enrollment-server/SUPABASE-PLAN.md` (section 5) are still open.
+- **Alternatives:** Both stores in `main` chosen by an environment variable; a
+  second folder, `enrollment-server-supabase/`; a separate repository.
+- **Why:** The two versions are the same app with a different store, which is
+  what a branch is for, and only about eight files differ (the Repository,
+  `server.ts`, dependencies, tests and docs). The Keyv version stays free of
+  Supabase's dependency and setup (decisions 33 and 35). A folder or a second
+  repository would mean making each later fix twice (decision 34). The owner
+  can show either version by switching the default branch or by pointing
+  students at a branch, and switching back loses nothing. The branch starts
+  after the Keyv plan is finished, so there is nothing to merge back.
+
+### 49. The credentials schema is repeated in the two apps, not shared (2026-11-27; made, but may want to revisit)
+
+- **Decision:** The Zod schema for `{ user, password }` is written once in
+  each app: `RequestBody` in `counter-server` and `Credentials` in
+  `enrollment-server`. They are identical in shape. Inside the enrollment app
+  it is defined once and reused (`NewActivity` extends it). The `Credentials`
+  type in `auth.ts` is kept separate from the Controller's schema.
+- **Alternatives:** A shared module or package used by both apps; Auth exports
+  the type and the Controller checks its schema against it; deriving the type
+  from the schema with `z.infer`.
+- **Why:** The apps are independent projects with no shared code (decisions 33
+  and 34), so sharing would need a common folder or workspace. The repeated
+  line is one line, and the counter is finished. Deriving Auth's type from the
+  Controller's schema (or the reverse) would make one module depend on the
+  other's internals, against information hiding. The compiler already catches
+  drift in one direction: the Controller passes the parsed body to
+  `auth.authenticate`, which stops compiling if a field is lost or retyped.
+- **Revisit if:** a third app needs the same schema, the fields of a login
+  change, or students find the repeated name confusing (the Zod `Credentials`
+  and the type `Credentials` never meet, but share a name).
