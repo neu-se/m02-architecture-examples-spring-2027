@@ -457,3 +457,55 @@ and the gaps), confirmed 2026-11-24.
   if they scroll on. `createAuth` then fits on one slide by itself. This works
   in TypeScript because the helpers are used only when the functions run, not
   while the file loads, and lint and typecheck accept it.
+
+### 44. The HTTP contract of the four endpoints (2026-11-25)
+
+- **Decision:** All four are `POST` with credentials in the body (decision 1).
+  `POST /students` takes `{ user, password }`, which are the _new_ student's
+  login and password (no existing login is needed). `POST /activities` takes
+  `{ user, password, name }` from the admin. `POST /activities/:name/signups`
+  and `/drops` take `{ user, password }`, and the student is whoever those
+  credentials identify. Success is `201` (created) or `200` with
+  `{ "ok": true }`. Failure is `{ "error": "<reason>" }`: `400 Invalid
+request` (malformed), `401 Unauthorized`, `403 Forbidden` (not admin),
+  and for Service reasons: `reserved` 400; `no-such-student` and
+  `no-such-activity` 404; `duplicate`, `already-enrolled`,
+  `previously-dropped`, `limit` and `not-enrolled` 409. The order of checks
+  is: malformed, then unauthorized, then forbidden, then the Service.
+- **Alternatives:** A separate `name` field for a new student; replying with
+  the created record; `DELETE` for drops (see decision 29).
+- **Why:** The login name _is_ the student's identity (decision 20), so a
+  second field would only invite mismatches. Putting the Service's reason text
+  in the error body makes the rules visible in curl output. One lookup table
+  from reason to status keeps the mapping in one place. An admin who tries to
+  sign up gets `no-such-student` (404), since admin is not a student; no
+  special case is needed (YAGNI).
+
+### 45. Zod throws, and the error handler answers only for bad requests (2026-11-25)
+
+- **Decision:** Handlers call `Schema.parse(req.body)`, which throws a
+  `ZodError` on a malformed body. Express 5 passes errors from async
+  handlers to the error handler, which replies `400 Invalid request` for a
+  `ZodError` or a `SyntaxError` (malformed JSON) and passes every other error
+  on to Express's default handler (`500`). This replaces the `safeParse` plus
+  `if (!success)` block that the counter's Controller uses.
+- **Alternatives:** Repeat the `safeParse` check in each of the four handlers;
+  keep the counter's catch-everything 400 handler.
+- **Why:** The repeated check was four copies of the same two lines. Worse,
+  with the catch-everything handler, deleting a check changed nothing visible
+  (the resulting crash was also reported as 400), so mutation testing could
+  not prove the check was tested. Replying 400 to a bug in our own code would
+  also be misleading. A test makes the Service fail and expects 500. The
+  counter app is unchanged (decision 33).
+
+### 46. `server.ts` is wired at step 5, not step 6 (2026-11-25)
+
+- **Decision:** Once `createApp` needed Auth and Service, `server.ts` was
+  wired right away: a file repository at `DATA_FILE` (default
+  `enrollment-data.json`), and the admin password from `ADMIN_PASSWORD`, with a
+  demo-only default because the repository is public. Step 6 now holds only
+  the end-to-end tests.
+- **Alternatives:** Leave `server.ts` broken until step 6; wire it to the
+  memory repository meanwhile.
+- **Why:** Every commit should typecheck. A temporary wiring would be thrown
+  away.
