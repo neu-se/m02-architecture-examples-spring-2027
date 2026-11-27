@@ -13,7 +13,7 @@ describe("Controller: POST /count", () => {
 
   beforeEach(() => {
     authService = { isAuthorized: vi.fn().mockReturnValue(true) };
-    counterService = { increment: vi.fn().mockReturnValue(42) };
+    counterService = { increment: vi.fn().mockResolvedValue(42) };
     app = createApp(authService, counterService);
   });
 

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createAuth } from "../src/auth.ts";
 import { createApp } from "../src/controller.ts";
 import { createCounter } from "../src/counter.ts";
+import { createMemoryStore } from "../src/store.ts";
 
 // End-to-end: the real Controller, Auth, and Counter wired together.
 //
@@ -15,7 +16,7 @@ describe("Counter server (all modules together)", () => {
   const credentials = { user: "alice", password: "secret" };
 
   it("counts successive authorized calls: 1, 2, 3", async () => {
-    const app = createApp(createAuth(), createCounter());
+    const app = createApp(createAuth(), createCounter(createMemoryStore()));
 
     const first = await request(app).post("/count").send(credentials);
     const second = await request(app).post("/count").send(credentials);
@@ -27,7 +28,7 @@ describe("Counter server (all modules together)", () => {
   });
 
   it("does not count rejected or invalid calls", async () => {
-    const app = createApp(createAuth(), createCounter());
+    const app = createApp(createAuth(), createCounter(createMemoryStore()));
 
     await request(app).post("/count").send({ user: "alice", password: "wrong" }).expect(401);
     await request(app).post("/count").send({ user: "alice" }).expect(400);

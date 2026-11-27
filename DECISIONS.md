@@ -665,3 +665,36 @@ request` (malformed), `401 Unauthorized`, `403 Forbidden` (not admin),
   testing still catches a missing check, because the 400 is now written in the
   handler and the error handler no longer hides it (Stryker 100%).
 - **Revisit if:** more endpoints are added, so that the repeated check grows.
+
+### 54. A Keyv version of the counter, on branch `counter-keyv` (2026-11-27)
+
+- **Decision:** The counter gets a persistent version on the branch
+  `counter-keyv` (made from `main`, like `with-supabase` in decision 48).
+  Dependency injection keeps the change small:
+  - `Counter.increment()` returns `Promise<number>` instead of `number`
+    (`interfaces.ts`). Keyv is asynchronous, so this cannot be avoided, and it
+    is the lesson: an async dependency makes every caller async.
+  - Controller: the `/count` handler is `async` and `await`s `increment()`.
+    Nothing else in it changes. Auth is untouched.
+  - `createCounter(store: Keyv)` takes the store as an argument and keeps the
+    count under one key. The new `src/store.ts` builds a memory store
+    (`createMemoryStore`) or a file store (`createFileStore`, with `keyv-file`,
+    as in the enrollment app). `server.ts` passes a file store
+    (`counter-data.json`, or `DATA_FILE`); tests pass memory stores.
+  - Tests: the Counter and end-to-end tests `await` and pass a memory store;
+    the Controller test's stub resolves a Promise. One new test checks that the
+    count survives a restart.
+- **Alternatives:** Change `main` in place (version 1 is meant to stay free of
+  complications, decision 33); a third folder; keep `Counter` synchronous and
+  cache the count in memory (the file would then be written but never read,
+  so there would be no real persistence).
+- **Why:** A branch shows the whole change as `git diff main`, and the owner
+  can switch versions without keeping two copies in step. The store is injected
+  so the Counter never learns whether it is in memory or a file, as in
+  decision 6.
+- **Known limit:** `increment` reads the count, adds one and writes it back.
+  Two calls at the same instant could read the same count. Keyv has no atomic
+  increment, and the enrollment app also documents its race rather than
+  preventing it (decision 28). A comment in `counter.ts` says so.
+- **Revisit if:** the example needs to show the race and a fix (for example a
+  database with an atomic increment).

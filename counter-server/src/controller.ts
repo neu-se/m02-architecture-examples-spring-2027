@@ -11,7 +11,7 @@ export function createApp(authService: Auth, counterService: Counter): Express {
   const app = express();
   app.use(express.json());
 
-  app.post("/count", (req, res) => {
+  app.post("/count", async (req, res) => {
     const credentials = validatedCredentials(req.body);
     if (credentials === undefined) {
       res.status(400).json({ error: "Invalid request" });
@@ -23,7 +23,7 @@ export function createApp(authService: Auth, counterService: Counter): Express {
       return;
     }
 
-    res.status(200).json({ count: counterService.increment() });
+    res.status(200).json({ count: await counterService.increment() });
   });
 
   app.use(badJson);

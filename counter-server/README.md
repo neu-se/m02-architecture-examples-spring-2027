@@ -26,11 +26,18 @@ authorized user returns how many authorized calls the server has handled.
 | ---------- | -------------------------------------- | -------------------------------------- |
 | Controller | [src/controller.ts](src/controller.ts) | Express and Zod; HTTP status codes     |
 | Auth       | [src/auth.ts](src/auth.ts)             | How credentials are stored and checked |
-| Counter    | [src/counter.ts](src/counter.ts)       | Where the count lives                  |
+| Counter    | [src/counter.ts](src/counter.ts)       | The key the count is kept under        |
+| Store      | [src/store.ts](src/store.ts)           | Keyv; memory or a file                 |
 
 The Controller knows Auth and Counter only through their interfaces.
 [src/server.ts](src/server.ts) creates the modules and passes them to the
 Controller.
+
+**This is the Keyv version.** The count is kept in a Keyv store that is passed
+to the Counter, and the server gives it a file (`counter-data.json`, or
+`DATA_FILE`), so the count survives a restart. Keyv is asynchronous, so
+`increment()` returns a Promise; that is the only change to the Controller and
+its interface. `git diff main` shows everything that differs from version 1.
 
 ## The API
 

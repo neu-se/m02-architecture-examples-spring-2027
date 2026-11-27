@@ -8,6 +8,6 @@ export interface Auth {
 }
 
 export interface Counter {
-  /** Returns the total number of calls so far, including this one. */
-  increment(): number;
+  /** Resolves to the total number of calls so far, including this one. */
+  increment(): Promise<number>;
 }
