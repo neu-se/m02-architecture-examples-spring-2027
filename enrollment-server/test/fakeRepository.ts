@@ -1,7 +1,7 @@
 // An in-memory Repository for tests. It copies records on the way in and out,
 // like a real store would, so a test cannot change stored data by accident.
 
-import type { Activity, Repository, Student } from "../src/repository.ts";
+import type { Activity, Repository, Student } from "../src/interfaces.ts";
 
 export function createFakeRepository(): Repository {
   const students = new Map<string, Student>();

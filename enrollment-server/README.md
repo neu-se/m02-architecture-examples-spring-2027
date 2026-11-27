@@ -29,17 +29,18 @@ The rules:
                                                    +------------+
 ```
 
-| Module     | File                                   | What it hides                                       |
-| ---------- | -------------------------------------- | --------------------------------------------------- |
-| Controller | [src/controller.ts](src/controller.ts) | Express and Zod; HTTP status codes                  |
-| Auth       | [src/auth.ts](src/auth.ts)             | Password hashing; where the admin password lives    |
-| Service    | [src/service.ts](src/service.ts)       | The two rules, and how a student record is laid out |
-| Repository | [src/repository.ts](src/repository.ts) | Keyv, the file, and the key names                   |
+| Module     | File                                             | What it hides                                       |
+| ---------- | ------------------------------------------------ | --------------------------------------------------- |
+| Controller | [src/controller.ts](src/controller.ts)           | Express and Zod; HTTP status codes                  |
+| Auth       | [src/authService.ts](src/authService.ts)         | Password hashing; where the admin password lives    |
+| Service    | [src/activityService.ts](src/activityService.ts) | The two rules, and how a student record is laid out |
+| Repository | [src/repository.ts](src/repository.ts)           | Keyv, the file, and the key names                   |
 
 Each module is created with the modules it needs passed in, and knows them
-only through their interfaces. [src/server.ts](src/server.ts) creates them
-all. The Service returns results such as `{ ok: false, reason: "limit" }`
-instead of throwing, and the Controller turns each reason into a status code.
+only through the interfaces in [src/interfaces.ts](src/interfaces.ts).
+[src/server.ts](src/server.ts) creates them all. The Service returns results
+such as `{ ok: false, reason: "limit" }` instead of throwing, and the
+Controller turns each reason into a status code.
 
 ## The API
 

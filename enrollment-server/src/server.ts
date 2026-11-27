@@ -1,9 +1,9 @@
 // Entry point: creates the modules, wires them together, and starts listening.
 
-import { createAuth } from "./auth.ts";
+import { createService } from "./activityService.ts";
+import { createAuth } from "./authService.ts";
 import { createApp } from "./controller.ts";
 import { createFileRepository } from "./repository.ts";
-import { createService } from "./service.ts";
 
 const port = Number(process.env.PORT ?? 3000);
 // Demo default only: this repository is public, so set ADMIN_PASSWORD for real use.

@@ -9,14 +9,11 @@ import type { Express } from "express";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { createAuth } from "../src/auth.ts";
+import { createService } from "../src/activityService.ts";
+import { createAuth } from "../src/authService.ts";
 import { createApp } from "../src/controller.ts";
-import {
-  createFileRepository,
-  createMemoryRepository,
-  type Repository,
-} from "../src/repository.ts";
-import { createService } from "../src/service.ts";
+import type { Repository } from "../src/interfaces.ts";
+import { createFileRepository, createMemoryRepository } from "../src/repository.ts";
 
 const admin = { user: "admin", password: "root" };
 const sam = { user: "sam", password: "pw-sam" };

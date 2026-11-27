@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import type { Repository } from "../src/repository.ts";
-import { createService, type Service } from "../src/service.ts";
+import { createService } from "../src/activityService.ts";
+import type { Repository, Service } from "../src/interfaces.ts";
 import { createFakeRepository } from "./fakeRepository.ts";
 
 const ok = { ok: true };

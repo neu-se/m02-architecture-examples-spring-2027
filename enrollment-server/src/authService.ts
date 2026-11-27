@@ -6,19 +6,8 @@
 import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 
-import { ADMIN_NAME } from "./admin.ts";
-import type { Repository } from "./repository.ts";
-
-export type Credentials = { user: string; password: string };
-
-export type Identity = { name: string; isAdmin: boolean };
-
-export interface Auth {
-  /** Who is this? Resolves to undefined if the credentials are not valid. */
-  authenticate(credentials: Credentials): Promise<Identity | undefined>;
-  /** Turns a password into the text that is stored in place of it. */
-  hashPassword(password: string): Promise<string>;
-}
+import { ADMIN_NAME } from "./adminService.ts";
+import type { Auth, Repository } from "./interfaces.ts";
 
 export function createAuth(repository: Repository, adminPassword: string): Auth {
   const adminHash = hash(adminPassword);

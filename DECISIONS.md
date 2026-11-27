@@ -612,3 +612,36 @@ request` (malformed), `401 Unauthorized`, `403 Forbidden` (not admin),
   `createApp` fits on a slide.
 - **Revisit if:** the slides change, or the same layout is applied to
   `enrollment-server`.
+
+### 52. The same layout in `enrollment-server`, and `...Service` file names (2026-11-27)
+
+- **Decision:** `enrollment-server` gets the same treatment as `counter-server`
+  (decisions 50 and 51), for the same reason: to increase the readability of
+  the slides.
+  - `src/interfaces.ts` holds the `Auth` and `Service` interfaces, the
+    `Repository` interface, and the types they use (`Credentials`,
+    `Identity`, `Result`, `Student`, `Activity`, `EnrollmentStatus`). The
+    implementation files keep only their `create…` functions and helpers.
+  - Files renamed: `service.ts` to `activityService.ts`, `auth.ts` to
+    `authService.ts`, `admin.ts` to `adminService.ts`. `repository.ts` keeps
+    its name. The matching test files were renamed too
+    (`activityService.test.ts`, `authService.test.ts`).
+  - In `controller.ts`, `createApp(authService, activityService)`; the Zod
+    schemas, the `badRequest` handler, `STATUS` and `reply` come after
+    `createApp`, and the Controller test's stubs use the new names. There is no
+    `validatedCredentials` here, because this Controller uses Zod's throwing
+    `parse` (decision 45), not `safeParse`.
+  - Interface names (`Auth`, `Service`, `Repository`), factory names
+    (`createAuth`, `createService`) and the `ADMIN_NAME` constant are unchanged.
+- **Alternatives:** Leave the enrollment app as it was; move only the `Auth`
+  and `Service` interfaces and leave `Repository`'s in `repository.ts`.
+- **Why:** The two apps should look alike on the slides. Putting the
+  `Repository` interface and record types in `interfaces.ts` too means every
+  contract is in one short file, and `repository.ts` is left with the Keyv
+  code that students need not read. The `...Service` names say what each
+  module is, and `activityService` names the one that enrolls students in
+  activities.
+- **Note:** Earlier entries still use the old file names (`service.ts`,
+  `auth.ts`, `admin.ts`), which were right when they were written.
+- **Revisit if:** the Supabase branch changes how the Repository is split
+  from its interface, or the files no longer fit on one screen.

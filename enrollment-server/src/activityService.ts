@@ -3,29 +3,10 @@
 //   2. A student who drops an activity may never sign up for it again.
 // It reports each outcome as a result, and the Controller turns that into HTTP.
 
-import { ADMIN_NAME } from "./admin.ts";
-import type { Repository } from "./repository.ts";
+import { ADMIN_NAME } from "./adminService.ts";
+import type { Repository, Service } from "./interfaces.ts";
 
 const MAX_ACTIVE = 3;
-
-export type Result<Reason extends string> = { ok: true } | { ok: false; reason: Reason };
-
-export interface Service {
-  createStudent(name: string, passwordHash: string): Promise<Result<"duplicate" | "reserved">>;
-  createActivity(name: string): Promise<Result<"duplicate">>;
-  signUp(
-    student: string,
-    activity: string,
-  ): Promise<
-    Result<
-      "no-such-student" | "no-such-activity" | "already-enrolled" | "previously-dropped" | "limit"
-    >
-  >;
-  drop(
-    student: string,
-    activity: string,
-  ): Promise<Result<"no-such-student" | "no-such-activity" | "not-enrolled">>;
-}
 
 const ok = { ok: true } as const;
 const fail = <Reason extends string>(reason: Reason) => ({ ok: false, reason }) as const;

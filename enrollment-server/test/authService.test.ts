@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { type Auth, createAuth } from "../src/auth.ts";
-import type { Repository } from "../src/repository.ts";
+import { createAuth } from "../src/authService.ts";
+import type { Auth, Repository } from "../src/interfaces.ts";
 import { createFakeRepository } from "./fakeRepository.ts";
 
 describe("Auth", () => {

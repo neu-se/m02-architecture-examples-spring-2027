@@ -4,12 +4,8 @@ import { join } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import {
-  createFileRepository,
-  createMemoryRepository,
-  type Repository,
-  type Student,
-} from "../src/repository.ts";
+import type { Repository, Student } from "../src/interfaces.ts";
+import { createFileRepository, createMemoryRepository } from "../src/repository.ts";
 import { createFakeRepository } from "./fakeRepository.ts";
 
 const sam: Student = {

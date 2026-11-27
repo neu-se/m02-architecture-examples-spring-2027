@@ -31,10 +31,11 @@ should not change at all.
 | `test/enrollment.test.ts`    | End-to-end tests use the fake repository. The restart test becomes a Supabase-only test.          |
 | `README.md`, `demo.sh`, docs | Persistence section, setup steps, and how to reset the demo data.                                 |
 
-Unchanged: `service.ts`, `auth.ts`, `admin.ts`, `controller.ts`, and every
-Service, Auth and Controller test. Showing students that
-`git diff main..with-supabase -- src` touches only `repository.ts` and
-`server.ts` is itself a good demonstration of information hiding.
+Unchanged: `activityService.ts`, `authService.ts`, `adminService.ts`,
+`controller.ts`, `interfaces.ts`, and every Service, Auth and Controller test.
+Showing students that `git diff main..with-supabase -- src` touches only
+`repository.ts` and `server.ts` is itself a good demonstration of information
+hiding.
 
 ## 3. How to organize the two versions
 
