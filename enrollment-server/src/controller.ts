@@ -4,7 +4,7 @@
 // and Service only by their interfaces.
 
 import express, { type ErrorRequestHandler, type Express, type Response } from "express";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
 import type { Auth, Result, Service } from "./interfaces.ts";
 
@@ -14,7 +14,8 @@ export function createApp(authService: Auth, activityService: Service): Express 
 
   // Anyone may create a student; the new login and password are in the body.
   app.post("/students", async (req, res) => {
-    const body = Credentials.parse(req.body);
+    const body = validated(Credentials, req.body);
+    if (!body) return void res.status(400).json({ error: "Invalid request" });
 
     const hash = await authService.hashPassword(body.password);
     reply(res, 201, await activityService.createStudent(body.user, hash));
@@ -22,7 +23,8 @@ export function createApp(authService: Auth, activityService: Service): Express 
 
   // Only the admin may create an activity.
   app.post("/activities", async (req, res) => {
-    const body = NewActivity.parse(req.body);
+    const body = validated(NewActivity, req.body);
+    if (!body) return void res.status(400).json({ error: "Invalid request" });
 
     const caller = await authService.authenticate(body);
     if (!caller) return void res.status(401).json({ error: "Unauthorized" });
@@ -37,7 +39,8 @@ export function createApp(authService: Auth, activityService: Service): Express 
     act: (student: string, activity: string) => Promise<Result<string>>,
   ) {
     app.post<{ name: string }>(path, async (req, res) => {
-      const body = Credentials.parse(req.body);
+      const body = validated(Credentials, req.body);
+      if (!body) return void res.status(400).json({ error: "Invalid request" });
 
       const caller = await authService.authenticate(body);
       if (!caller) return void res.status(401).json({ error: "Unauthorized" });
@@ -59,11 +62,17 @@ export function createApp(authService: Auth, activityService: Service): Express 
 const Credentials = z.object({ user: z.string().min(1), password: z.string().min(1) });
 const NewActivity = Credentials.extend({ name: z.string().min(1) });
 
-// Malformed JSON (from express.json) and malformed bodies (from Zod's parse)
-// are both the caller's fault. Anything else is our bug, so it goes on to
-// Express's default handler, which replies 500.
+// Returns the body if it has the right shape, else undefined.
+function validated<T>(schema: z.ZodType<T>, body: unknown): T | undefined {
+  const parsed = schema.safeParse(body);
+  return parsed.success ? parsed.data : undefined;
+}
+
+// express.json() throws on malformed JSON, which is the caller's fault. Any
+// other error is our bug, so it goes on to Express's default handler, which
+// replies 500.
 const badRequest: ErrorRequestHandler = (err, _req, res, next) => {
-  if (err instanceof SyntaxError || err instanceof ZodError) {
+  if (err instanceof SyntaxError) {
     res.status(400).json({ error: "Invalid request" });
   } else {
     next(err);

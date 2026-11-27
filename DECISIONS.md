@@ -645,3 +645,23 @@ request` (malformed), `401 Unauthorized`, `403 Forbidden` (not admin),
   `auth.ts`, `admin.ts`), which were right when they were written.
 - **Revisit if:** the Supabase branch changes how the Repository is split
   from its interface, or the files no longer fit on one screen.
+
+### 53. The enrollment Controller uses `safeParse` again (2026-11-27; replaces the parsing part of 45)
+
+- **Decision:** The enrollment Controller validates with `safeParse`, through a
+  small private function `validated(schema, body)` that returns the data or
+  `undefined`. Each of the three places that read a body (`/students`,
+  `/activities`, and the shared `studentRoute`) checks the result and replies
+  `400 Invalid request` itself. The `badRequest` error handler now answers only
+  for a `SyntaxError` (malformed JSON from `express.json`) and passes every
+  other error on to Express (`500`). Decision 45's rule that a bug in our own
+  code is a 500, not a 400, still holds.
+- **Alternatives:** Keep `Schema.parse` and let the error handler turn a
+  `ZodError` into a 400 (decision 45).
+- **Why:** The owner prefers `safeParse`: the 400 path is visible in each
+  handler, and the enrollment Controller then reads like the counter's, which
+  helps on the slides. The cost is a repeated two-line check, but only in three
+  places, because `studentRoute` is shared by sign-up and drop. Mutation
+  testing still catches a missing check, because the 400 is now written in the
+  handler and the error handler no longer hides it (Stryker 100%).
+- **Revisit if:** more endpoints are added, so that the repeated check grows.
