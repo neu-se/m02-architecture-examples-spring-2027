@@ -567,3 +567,48 @@ request` (malformed), `401 Unauthorized`, `403 Forbidden` (not admin),
 - **Revisit if:** a third app needs the same schema, the fields of a login
   change, or students find the repeated name confusing (the Zod `Credentials`
   and the type `Credentials` never meet, but share a name).
+
+### 50. Interfaces for the counter's modules live together in `interfaces.ts` (2026-11-27)
+
+- **Decision:** In `counter-server`, the `Auth` interface, the `Credentials`
+  type it uses, and the `Counter` interface are defined in one file,
+  `src/interfaces.ts`. `auth.ts` and `counter.ts` keep only their `create…`
+  factories and import their interface from there. The Controller and the
+  Controller's test import both types from `interfaces.ts`. Only
+  `counter-server` changed; `enrollment-server` is untouched.
+- **Alternatives:** Keep each interface in its module's file (the earlier
+  layout); one interface file per module.
+- **Why:** The interfaces are the contracts between modules, so students can
+  read all of them in one short file without any implementation details.
+  Callers depend on the contract file, not on a module that also holds
+  private code, which makes the separation of concerns and information hiding
+  easier to see. `Credentials` moved too because `Auth` depends on it. It
+  also makes the slides easier to read: one short file shows all the
+  contracts at once.
+- **Revisit if:** the enrollment app gets the same treatment (its Auth,
+  Service and Repository files each hold their interface), or the file grows
+  past one screen.
+
+### 51. Controller layout and names chosen for readable slides (2026-11-27)
+
+- **Decision:** In `counter-server/src/controller.ts`:
+  - `RequestBody.safeParse` is wrapped in a standalone function,
+    `validatedCredentials(body)`, which returns the `Credentials` or
+    `undefined`.
+  - The file reads top to bottom as `createApp`, then the `RequestBody`
+    schema, then `validatedCredentials`, then the `badJson` error handler
+    (now a module-level constant instead of one inside `createApp`).
+  - `createApp`'s parameters are named `authService` and `counterService`
+    (the Controller test's stubs match). The `Auth` and `Counter` interface
+    names, the factories and the file names are unchanged.
+- **Alternatives:** Leave `safeParse` and `badJson` inline in `createApp`;
+  keep the shorter names `auth` and `counter`.
+- **Why:** These changes are made to increase the readability of the slides.
+  The route handler is the part students should read first, so it is shown
+  alone, with the public function first and the private helpers after it
+  (decision 43). Calling `validatedCredentials` reads as a sentence, and
+  `createApp(authService, counterService)` shows that the Controller depends
+  on services, not on the factories. Together with decision 50, the shorter
+  `createApp` fits on a slide.
+- **Revisit if:** the slides change, or the same layout is applied to
+  `enrollment-server`.

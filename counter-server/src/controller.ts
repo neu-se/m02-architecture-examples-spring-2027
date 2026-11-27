@@ -5,8 +5,31 @@
 import express, { type ErrorRequestHandler, type Express } from "express";
 import { z } from "zod";
 
-import type { Auth } from "./auth.ts";
-import type { Counter } from "./counter.ts";
+import type { Auth, Counter, Credentials } from "./interfaces.ts";
+
+export function createApp(authService: Auth, counterService: Counter): Express {
+  const app = express();
+  app.use(express.json());
+
+  app.post("/count", (req, res) => {
+    const credentials = validatedCredentials(req.body);
+    if (credentials === undefined) {
+      res.status(400).json({ error: "Invalid request" });
+      return;
+    }
+
+    if (!authService.isAuthorized(credentials)) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    res.status(200).json({ count: counterService.increment() });
+  });
+
+  app.use(badJson);
+
+  return app;
+}
 
 // The shape every request body must have.
 const RequestBody = z.object({
@@ -14,30 +37,13 @@ const RequestBody = z.object({
   password: z.string().min(1),
 });
 
-export function createApp(auth: Auth, counter: Counter): Express {
-  const app = express();
-  app.use(express.json());
-
-  app.post("/count", (req, res) => {
-    const parsed = RequestBody.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: "Invalid request" });
-      return;
-    }
-
-    if (!auth.isAuthorized(parsed.data)) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    res.status(200).json({ count: counter.increment() });
-  });
-
-  // express.json() throws on malformed JSON; report that as a bad request too.
-  const badJson: ErrorRequestHandler = (_err, _req, res, _next) => {
-    res.status(400).json({ error: "Invalid request" });
-  };
-  app.use(badJson);
-
-  return app;
+// Returns the credentials if the body has the right shape, else undefined.
+function validatedCredentials(body: unknown): Credentials | undefined {
+  const parsed = RequestBody.safeParse(body);
+  return parsed.success ? parsed.data : undefined;
 }
+
+// express.json() throws on malformed JSON; report that as a bad request too.
+const badJson: ErrorRequestHandler = (_err, _req, res, _next) => {
+  res.status(400).json({ error: "Invalid request" });
+};

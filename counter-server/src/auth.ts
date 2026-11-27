@@ -2,11 +2,7 @@
 // Information hiding: callers see only `isAuthorized`; how credentials are
 // stored and compared is private and can change without affecting callers.
 
-export type Credentials = { user: string; password: string };
-
-export interface Auth {
-  isAuthorized(credentials: Credentials): boolean;
-}
+import type { Auth } from "./interfaces.ts";
 
 export function createAuth(): Auth {
   // One hardcoded user, for teaching. A real system would store hashed

@@ -1,21 +1,20 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Auth } from "../src/auth.ts";
 import { createApp } from "../src/controller.ts";
-import type { Counter } from "../src/counter.ts";
+import type { Auth, Counter } from "../src/interfaces.ts";
 
 // Stubs let us test the Controller alone, without the real Auth or Counter.
 describe("Controller: POST /count", () => {
   const credentials = { user: "alice", password: "secret" };
-  let auth: Auth;
-  let counter: Counter;
+  let authService: Auth;
+  let counterService: Counter;
   let app: ReturnType<typeof createApp>;
 
   beforeEach(() => {
-    auth = { isAuthorized: vi.fn().mockReturnValue(true) };
-    counter = { increment: vi.fn().mockReturnValue(42) };
-    app = createApp(auth, counter);
+    authService = { isAuthorized: vi.fn().mockReturnValue(true) };
+    counterService = { increment: vi.fn().mockReturnValue(42) };
+    app = createApp(authService, counterService);
   });
 
   it("returns 200 and the counter's value for an authorized user", async () => {
@@ -23,17 +22,17 @@ describe("Controller: POST /count", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ count: 42 });
-    expect(auth.isAuthorized).toHaveBeenCalledWith(credentials);
+    expect(authService.isAuthorized).toHaveBeenCalledWith(credentials);
   });
 
   it("returns 401 and does not call the counter when Auth rejects", async () => {
-    vi.mocked(auth.isAuthorized).mockReturnValue(false);
+    vi.mocked(authService.isAuthorized).mockReturnValue(false);
 
     const res = await request(app).post("/count").send(credentials);
 
     expect(res.status).toBe(401);
     expect(res.body).toEqual({ error: "Unauthorized" });
-    expect(counter.increment).not.toHaveBeenCalled();
+    expect(counterService.increment).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -48,8 +47,8 @@ describe("Controller: POST /count", () => {
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: "Invalid request" });
-    expect(auth.isAuthorized).not.toHaveBeenCalled();
-    expect(counter.increment).not.toHaveBeenCalled();
+    expect(authService.isAuthorized).not.toHaveBeenCalled();
+    expect(counterService.increment).not.toHaveBeenCalled();
   });
 
   it("returns 400 for a body that is not valid JSON", async () => {
@@ -60,13 +59,13 @@ describe("Controller: POST /count", () => {
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: "Invalid request" });
-    expect(auth.isAuthorized).not.toHaveBeenCalled();
+    expect(authService.isAuthorized).not.toHaveBeenCalled();
   });
 
   it("returns 400 when there is no body at all", async () => {
     const res = await request(app).post("/count");
 
     expect(res.status).toBe(400);
-    expect(auth.isAuthorized).not.toHaveBeenCalled();
+    expect(authService.isAuthorized).not.toHaveBeenCalled();
   });
 });
